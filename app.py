@@ -17,38 +17,44 @@ events = [
     Event(2, "Python Workshop")
 ]
 
-# TODO: Task 1 - Define the Problem
+# Read events
+@app.route("/events/<int:event_id>", methods=["GET"])
+def get_event(event_id):
+    event = next((event for event in events if event.id == event_id), None)
+    if event:
+        return jsonify(event.to_dict())
+    else:
+        return ("Event not found", 404)
+    
 # Create a new event from JSON input
 @app.route("/events", methods=["POST"])
 def create_event():
-    # TODO: Task 2 - Design and Develop the Code
+    data = request.get_json()
+    new_id = max([event.id for event in events]) + 1 if events else 1
+    new_event = Event(id=new_id, title=data["title"])
+    events.append(new_event)
+    return jsonify(new_event.to_dict()), 201
 
-    # TODO: Task 3 - Implement the Loop and Process Each Element
-
-    # TODO: Task 4 - Return and Handle Results
-    pass
-
-# TODO: Task 1 - Define the Problem
 # Update the title of an existing event
 @app.route("/events/<int:event_id>", methods=["PATCH"])
 def update_event(event_id):
-    # TODO: Task 2 - Design and Develop the Code
+    data = request.get_json()
+    event = next((event for event in events if event.id == event_id), None)
+    if not event:
+        return ("Event not found", 404)
+    if "title" in data:
+        event.title = data["title"]
+    return jsonify(event.to_dict())
 
-    # TODO: Task 3 - Implement the Loop and Process Each Element
-
-    # TODO: Task 4 - Return and Handle Results
-    pass
-
-# TODO: Task 1 - Define the Problem
 # Remove an event from the list
 @app.route("/events/<int:event_id>", methods=["DELETE"])
 def delete_event(event_id):
-    # TODO: Task 2 - Design and Develop the Code
-
-    # TODO: Task 3 - Implement the Loop and Process Each Element
-
-    # TODO: Task 4 - Return and Handle Results
-    pass
+    global events
+    event = next((event for event in events if event.id == event_id), None)
+    if not event:
+        return ("Event not found", 404)
+    events = [event for event in events if event.id != event_id]
+    return ("Event deleted", 204)
 
 if __name__ == "__main__":
     app.run(debug=True)
